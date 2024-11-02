@@ -3,13 +3,11 @@ package com.example.Kirby_mini_2nd;
 import com.example.Kirby_mini_2nd.repository.entity.Follows;
 import com.example.Kirby_mini_2nd.repository.entity.FollowsCompositekey;
 import com.example.Kirby_mini_2nd.repository.repo.FollowsRepo;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
 import java.time.LocalDateTime;
 import java.util.List;
