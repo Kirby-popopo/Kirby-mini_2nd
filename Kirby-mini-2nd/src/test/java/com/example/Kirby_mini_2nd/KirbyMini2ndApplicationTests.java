@@ -22,15 +22,10 @@ public class KirbyMini2ndApplicationTests {
 
 	@Test
 	void FindByFollowerId() {
-		List<Follows> followsList = followsRepo.findByFollowerId("1234");
+		List<String> followsList = followsRepo.findByFollowerId("1234");
 		followsList.forEach(e -> System.out.println(e));
 	}
 
-	@Test
-	void findByFollowing_id(){
-		List<Follows> followsList = followsRepo.findByFollowingId("1234");
-		followsList.forEach(e -> System.out.println(e));
-	}
 
 	@Test
 	void SaveFollows() {

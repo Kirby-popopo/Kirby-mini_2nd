@@ -2,6 +2,7 @@ package com.example.Kirby_mini_2nd.repository.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -19,5 +20,6 @@ public class Follows {
     @Column(name = "following_id", nullable = false, length = 30)
     private String following_id;
 
+    @CreationTimestamp
     private LocalDateTime follow_time;
 }

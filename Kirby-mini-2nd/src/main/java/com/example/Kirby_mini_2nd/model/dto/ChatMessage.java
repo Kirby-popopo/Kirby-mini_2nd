@@ -1,4 +1,4 @@
-package com.example.Kirby_mini_2nd.dto;
+package com.example.Kirby_mini_2nd.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
