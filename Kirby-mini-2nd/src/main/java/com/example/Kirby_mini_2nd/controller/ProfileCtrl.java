@@ -8,10 +8,8 @@ import com.example.Kirby_mini_2nd.service.FollowSvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +36,7 @@ public class ProfileCtrl {
         List<String> follower = followSvc.SearchFollower(userId);
         List<String> following = followSvc.SearchFollowing(userId);
         ProfileDTO userProfileDTO = userRepo.findByUserIdForProfile(userId);// 삭제
+
         ProfileVO userProfileVO = new ProfileVO(
                 userProfileDTO.getName(),
                 userProfileDTO.getProfileImage(),
@@ -47,5 +46,16 @@ public class ProfileCtrl {
                 );
 
         return ResponseModel.MakeResponse(userProfileVO, HttpStatus.OK);
+    }
+
+    @PostMapping("/updateProfile")
+    public ResponseEntity<ResponseModel> UpdateProfile(
+            @RequestParam("updateImage") MultipartFile file,
+            @RequestParam("bio") String bio,
+            @RequestParam("gender") String gender )
+    {
+        System.out.println(file);
+
+        return null;
     }
 }
