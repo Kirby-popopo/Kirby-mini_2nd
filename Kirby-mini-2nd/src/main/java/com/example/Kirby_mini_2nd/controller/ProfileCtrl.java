@@ -5,6 +5,7 @@ import com.example.Kirby_mini_2nd.model.dto.ProfileDTO;
 import com.example.Kirby_mini_2nd.model.vo.ProfileVO;
 import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.FollowSvc;
+import com.example.Kirby_mini_2nd.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,7 +55,9 @@ public class ProfileCtrl {
             @RequestParam("bio") String bio,
             @RequestParam("gender") String gender )
     {
-        System.out.println(file);
+        // 이미지 저장 이후 해당 URL 생성.
+        // 서비스로 이동시킬 예정.
+        String savedFileImage = FileUtil.SaveFileImage(file);
 
         return null;
     }

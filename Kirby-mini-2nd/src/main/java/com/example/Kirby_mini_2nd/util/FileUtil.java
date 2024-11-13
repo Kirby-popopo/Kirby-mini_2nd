@@ -9,8 +9,8 @@ public class FileUtil {
     private static final String UPLOAD_DIR = "C:/MiniProject/Kirby-mini_2nd/Kirby-mini-2nd/src/main/resources/static/images/";
     private static final String IMAGE_PATH = "http://localhost:8090/images/";
 
-    // 파일 저장  메서드
-    public static String SaveFile(MultipartFile file) {
+    // 파일(이미지) 저장  메서드
+    public static String SaveFileImage(MultipartFile file) {
         try {
             String fileName = UUID.randomUUID().toString() + file.getOriginalFilename();
             File destination = new File(UPLOAD_DIR + fileName);
