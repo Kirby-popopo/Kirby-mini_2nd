@@ -5,7 +5,7 @@ import com.example.Kirby_mini_2nd.model.dto.ProfileDTO;
 import com.example.Kirby_mini_2nd.model.vo.ProfileVO;
 import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.FollowSvc;
-import com.example.Kirby_mini_2nd.util.FileUtil;
+import com.example.Kirby_mini_2nd.service.ProfileSvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +22,14 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ProfileCtrl {
     FollowSvc followSvc;
+    ProfileSvc profileSvc;
     UserRepo userRepo; // 삭제
 
     @Autowired
-    public ProfileCtrl(FollowSvc followSvc, UserRepo userRepo){
+    public ProfileCtrl(FollowSvc followSvc, UserRepo userRepo, ProfileSvc profileSvc){
         this.followSvc = followSvc;
         this.userRepo = userRepo; // 삭제
+        this.profileSvc = profileSvc;
     }
 
     @PostMapping("/Profile")
@@ -53,12 +55,11 @@ public class ProfileCtrl {
     public ResponseEntity<ResponseModel> UpdateProfile(
             @RequestParam("updateImage") MultipartFile file,
             @RequestParam("bio") String bio,
-            @RequestParam("gender") String gender )
+            @RequestParam("gender") String gender,
+            @RequestParam("id") String id)
     {
-        // 이미지 저장 이후 해당 URL 생성.
-        // 서비스로 이동시킬 예정.
-        String savedFileImage = FileUtil.SaveFileImage(file);
+        profileSvc.updateProfile(id, file, bio, gender);
 
-        return null;
+        return ResponseModel.MakeResponse("good", HttpStatus.OK);
     }
 }
