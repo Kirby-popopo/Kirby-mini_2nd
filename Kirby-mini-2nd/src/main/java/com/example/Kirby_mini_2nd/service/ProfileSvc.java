@@ -16,10 +16,10 @@ public class ProfileSvc {
         this.userRepo = userRepo;
     }
 
-    public String updateProfile(String id, MultipartFile file, String bio, String gender){
+    public String updateProfile(String id, MultipartFile file, String fileName, String bio, String gender){
         User updateUser = userRepo.findByUserId(id).get();
 
-        String savedFileImage = FileUtil.SaveFileImage(file);
+        String savedFileImage = FileUtil.UpdateImage(file, fileName);
 
         updateUser.setDescription(bio);
         updateUser.setGender(gender);
@@ -28,7 +28,7 @@ public class ProfileSvc {
         try {
             userRepo.save(updateUser);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            return "UpdateError";
         }
 
         return "UpdateSuccess";

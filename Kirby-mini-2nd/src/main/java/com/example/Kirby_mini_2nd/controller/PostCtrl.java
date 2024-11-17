@@ -31,12 +31,12 @@ public class PostCtrl {
         String result = postSvc.SavePost(post);
         return ResponseModel.MakeResponse(result, HttpStatus.OK);
     }
-    @PostMapping("/mainPage")
-    public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,List>requestData){
-        Posts post =new Posts();
-        List<Posts> main = postSvc.ShowMain();
-        return ResponseModel.MakeResponse(main,HttpStatus.OK);
-    }
+//    @PostMapping("/mainPage")
+//    public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,List>requestData){
+//        Posts post =new Posts();
+//        List<Posts> main = postSvc.ShowMain();
+//        return ResponseModel.MakeResponse(main,HttpStatus.OK);
+//    }
 
 }
 //객체 만들어서 서비스에 보낼거임

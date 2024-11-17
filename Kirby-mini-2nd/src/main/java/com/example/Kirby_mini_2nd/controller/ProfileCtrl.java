@@ -65,7 +65,6 @@ public class ProfileCtrl {
         if (result.equals("UpdateError")){
             return ResponseModel.MakeResponse("fail", HttpStatus.OK);
         }
-        profileSvc.updateProfile(id, file, bio, gender);
 
         return ResponseModel.MakeResponse("good", HttpStatus.OK);
     }
