@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -23,12 +24,18 @@ public class PostCtrl {
     public PostCtrl(PostSvc postSvc){
         this.postSvc=postSvc;
     }
-    @PostMapping("/post")//매핑명 변경예정
+    @PostMapping("/post")// 매핑명 변경예정
     public ResponseEntity<ResponseModel> SavePost(@RequestBody Map<String, String>requestData){
         //Posts post = requestData.get("postsDetail");
         Posts post = new Posts();
         String result = postSvc.SavePost(post);
         return ResponseModel.MakeResponse(result, HttpStatus.OK);
+    }
+    @PostMapping("/mainPage")
+    public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,List>requestData){
+        Posts post =new Posts();
+        List<Posts> main = postSvc.ShowMain();
+        return ResponseModel.MakeResponse(main,HttpStatus.OK);
     }
 
 }

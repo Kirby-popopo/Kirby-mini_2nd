@@ -29,12 +29,18 @@ public class PostSvc {
         }
     }
     public List<Posts> ShowMain(String userId){
-        // id가 일치하는 사람의 게시물만 보이게 할거임 vo써야하나?
-        // 메인페이지 = 게시물 리스트 5개 보여주기
-        // findById 하면 pk로 찾게되는데 그럼optional로 가져온다 ... getBy 써야겠지..?
-        // 하나만 가져올게 아니라 모든컬럼가져와야하니까
-        // 레포 쿼리문으로 다가져오기 리턴은 리스트 나오게
+        // 현재 해당 유저의 모든 게시글을 가져오는 코드임
+        // 변경해야 하는 사항.
+        // showMain()에서 파라미터로 해당 유저의 id받고, 첫 요청시 0페이지 가져오기 // 해당유저의 게시물 가져올거임
+        // 다음 스크롤마다 0페이지 -> 1페이지 등 1씩 늘어나는 요청을 해야함.
+        // findby로 찾아오는 애를 리스트가아닌 page로 만들어서 page로 받아옴.
+        // 페이징 처리 하는 부분을 넣어줘서 0, 1 동적으로 받아서 처리하면 됨.
+        // 만약 페이징 처리하는 부분에서 마지막 페이지, 즉 해당 유저의 게시글이 전부 보여지면
+        // 그 이후 요청은 다른 방식으로 다 보여줬다를 표시하게 리턴해주면됨.
         try {
+            List userPost = postsRepo.findByUserId(userId);
+            userPost.equals(postsRepo.findByUserId(userId));
+
             return postsRepo.findByUserId(userId);
         } catch (Exception e) {
             return null;
