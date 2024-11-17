@@ -26,4 +26,19 @@ public class SearchSvc {
         return userRepo.findByUserIdLikeTargetId(userId);
     }
 
+
+
+    //>-< 지오니가 구현예정
+    // 게시물검색
+    // 해시태그로 문자열 검색해서 문자열 포함된 해시태그PK 찾기
+    // 모든게시물찾고 게시물 이미지(미리보기) 보여주기
+    // #검색어
+    //
+    // #송지원
+    // #송지원여행
+    // #송지원맛집
+    // 검색한 해시태그만 나옴
+    // 여기에서
+    //public String searchPost(String )
+
 }

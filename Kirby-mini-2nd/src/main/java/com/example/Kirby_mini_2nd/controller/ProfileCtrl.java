@@ -6,6 +6,8 @@ import com.example.Kirby_mini_2nd.model.vo.ProfileVO;
 import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.FollowSvc;
 import com.example.Kirby_mini_2nd.service.ProfileSvc;
+import jakarta.annotation.Nullable;
+import com.example.Kirby_mini_2nd.service.ProfileSvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,11 +55,16 @@ public class ProfileCtrl {
 
     @PostMapping("/updateProfile")
     public ResponseEntity<ResponseModel> UpdateProfile(
-            @RequestParam("updateImage") MultipartFile file,
+            @Nullable @RequestParam("updateImage") MultipartFile file,
+            @RequestParam("updateImageName") String fileName,
             @RequestParam("bio") String bio,
             @RequestParam("gender") String gender,
             @RequestParam("id") String id)
     {
+        String result = profileSvc.updateProfile(id, file, fileName, bio, gender);
+        if (result.equals("UpdateError")){
+            return ResponseModel.MakeResponse("fail", HttpStatus.OK);
+        }
         profileSvc.updateProfile(id, file, bio, gender);
 
         return ResponseModel.MakeResponse("good", HttpStatus.OK);
