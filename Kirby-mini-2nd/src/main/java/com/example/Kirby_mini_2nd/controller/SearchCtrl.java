@@ -23,7 +23,7 @@ public class SearchCtrl {
         this.searchSvc = searchSvc;
     }
 
-    @PostMapping("/Search")
+    @PostMapping("/SearchUser")
     public ResponseEntity<ResponseModel> SearchUser(@RequestBody Map<String, String> requestData){
         String userId = requestData.get("userId");
         try {
