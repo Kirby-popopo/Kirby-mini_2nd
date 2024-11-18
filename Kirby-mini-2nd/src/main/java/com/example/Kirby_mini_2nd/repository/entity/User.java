@@ -1,6 +1,5 @@
 package com.example.Kirby_mini_2nd.repository.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
 
