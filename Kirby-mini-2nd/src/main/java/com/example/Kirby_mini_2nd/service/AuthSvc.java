@@ -22,21 +22,29 @@ public class AuthSvc {
     
     // 회원가입 패스워드 암호화
 
-    public User signUp(String userId, String userPw) {
-        String endcodePw = passwordEncoder.encode(userPw);
-        User user = User.builder()
-                .userId(userId)
+    public User signUp(User user) {
+        String endcodePw = passwordEncoder.encode(user.getUserPw());
+        User signUpUser = User.builder()
+                .userId(user.getUserId())
                 .userPw(endcodePw)
+                .email(user.getEmail())
+                .name(user.getName())
+                .gender(user.getGender())
+                .nickname(user.getNickname())
+                .phoneNumber(user.getPhoneNumber())
+                .lastLogin(user.getLastLogin())
+                .profileImage(user.getProfileImage())
+                .description(user.getDescription())
                 .build();
 
        /* validateDuplicateMember(user);*/
 
-        return userRepo.save(user);
+        return userRepo.save(signUpUser);
     }
     
     // 아이디 중복 확인
     private void validateDuplicateMember(User user) {
-        userRepo.findById(user.getUserIdx())
+        userRepo.findById(user.getUserId())
                 .ifPresent(u -> {
                     throw new IllegalStateException("이미 존재하는 회원입니다.");
                 });
