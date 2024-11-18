@@ -14,13 +14,11 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, String> {
-
-    // 아이디로 사용자 조회
-    Optional<User> findByUserId(String userId);
+    //public interface UserRepo extends JpaRepository<User, Long> {
 
     // 로그인 인증
-    @Query("SELECT u FROM User u WHERE u.userId = :userId AND u.userPw = :userPw")
-    Optional<User> findByUserIdAndUserPw(@Param("userId") String userId, @Param("userPw") String userPw);
+    /*@Query("SELECT u FROM User u WHERE u.userId = :userId AND u.userPw = :userPw")
+    Optional<User> findByUserIdAndUserPw(@Param("userId") String userId, @Param("userPw") String userPw);*/
 
     // 아이디 중복 체크
     @Query("SELECT COUNT(u) FROM User u WHERE u.userId = :userId")
@@ -34,5 +32,11 @@ public interface UserRepo extends JpaRepository<User, String> {
     @Query("SELECT new com.example.Kirby_mini_2nd.model.dto.ProfileDTO(u.name, u.profileImage, u.description) FROM User u WHERE u.userId = :id")
     ProfileDTO findByUserIdForProfile(@Param("id") String id);
 
+    // 로그인 인증
+    // UserDetailService에서 userId가 필요해서 만듬
+    User findByUserIdAndUserPw(String userId, String userPw);
+
+    // UserId 필요할때
+    User findByUserId(String userId);
 }
 

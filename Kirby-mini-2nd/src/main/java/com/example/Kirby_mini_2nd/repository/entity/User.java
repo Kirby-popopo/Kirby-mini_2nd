@@ -1,12 +1,8 @@
 package com.example.Kirby_mini_2nd.repository.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +10,9 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "users")
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 public class User {
     @Id
     @Column(name = "user_id")
@@ -36,5 +35,6 @@ public class User {
     @Column(name = "profile_image")
     private String profileImage;
 
-    private String description;
+    private String description; // ???
+
 }
