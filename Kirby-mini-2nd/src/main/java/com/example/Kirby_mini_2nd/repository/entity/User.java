@@ -15,10 +15,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_idx")
-    private Long userIdx;
-
     @Column(name = "user_id")
     private String userId;
 
