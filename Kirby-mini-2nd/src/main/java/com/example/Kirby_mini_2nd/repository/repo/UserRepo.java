@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepo extends JpaRepository<User, Long> {
+public interface UserRepo extends JpaRepository<User, String> {
+    //public interface UserRepo extends JpaRepository<User, Long> {
 
     // 로그인 인증
     /*@Query("SELECT u FROM User u WHERE u.userId = :userId AND u.userPw = :userPw")
@@ -33,6 +34,9 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     // 로그인 인증
     // UserDetailService에서 userId가 필요해서 만듬
-    User findByUserIdAndUserPw(String userId, String UserPw);
+    User findByUserIdAndUserPw(String userId, String userPw);
+
+    // UserId 필요할때
+    User findByUserId(String userId);
 }
 
