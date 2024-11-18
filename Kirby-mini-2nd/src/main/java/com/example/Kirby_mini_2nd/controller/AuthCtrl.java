@@ -34,12 +34,13 @@ public class AuthCtrl {
     JwtService jwtService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ResponseModel> signup(@RequestBody Map<String, String> requestData) {
-        String userId = requestData.get("userId");
-        String userPw = requestData.get("userPw");
+    public ResponseEntity<ResponseModel> signup(@RequestBody User user) {
+//        String userId = requestData.get("userId");
+//        String userPw = requestData.get("userPw");
+
 
         try {
-            return ResponseModel.MakeResponse(authSvc.signUp(userId, userPw), HttpStatus.OK);
+            return ResponseModel.MakeResponse(authSvc.signUp(user), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseModel.MakeResponse("signup Error?", HttpStatus.INTERNAL_SERVER_ERROR);
@@ -55,7 +56,7 @@ public class AuthCtrl {
         log.info("request userId: {}", params.get("userId"));
         log.info("login 실행");
         if (user != null) {
-            long id = user.getUserIdx();
+            String id = user.getUserId();
             String token = jwtService.getToken("id", id);
             MultiValueMap<String, String> header = new LinkedMultiValueMap<>();
             header.add("Authorization", token);
@@ -81,7 +82,7 @@ public class AuthCtrl {
         Claims claims = jwtService.getClaims(token);
 
         if (claims != null) {
-            long id = Long.parseLong(claims.get("userIdx").toString());
+            String id = claims.get("id").toString();
             User user = userRepo.findById(id).get();
             return new ResponseEntity<>("반가워요.. "+user.getUserId()+" 회원님!!", HttpStatus.OK);
         }
