@@ -25,6 +25,6 @@ public class test {
     public ResponseEntity<ResponseModel> getUserInfo(@RequestBody Map<String, String> requestData){
         String userId = requestData.get("id");
 
-        return ResponseModel.MakeResponse(userRepo.findByUserId(userId).get(), HttpStatus.OK);
+        return ResponseModel.MakeResponse(userRepo.findById(userId).get(), HttpStatus.OK);
     }
 }

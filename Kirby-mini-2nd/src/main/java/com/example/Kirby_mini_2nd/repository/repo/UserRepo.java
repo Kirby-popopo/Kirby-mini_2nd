@@ -36,7 +36,5 @@ public interface UserRepo extends JpaRepository<User, String> {
     // UserDetailService에서 userId가 필요해서 만듬
     User findByUserIdAndUserPw(String userId, String userPw);
 
-    // UserId 필요할때
-    User findByUserId(String userId);
 }
 
