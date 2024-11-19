@@ -35,6 +35,5 @@ public interface UserRepo extends JpaRepository<User, String> {
     // 로그인 인증
     // UserDetailService에서 userId가 필요해서 만듬
     User findByUserIdAndUserPw(String userId, String userPw);
-
 }
 
