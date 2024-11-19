@@ -35,9 +35,6 @@ public class AuthCtrl {
 
     @PostMapping("/signup")
     public ResponseEntity<ResponseModel> signup(@RequestBody User user) {
-//        String userId = requestData.get("userId");
-//        String userPw = requestData.get("userPw");
-
 
         try {
             return ResponseModel.MakeResponse(authSvc.signUp(user), HttpStatus.OK);
@@ -87,6 +84,14 @@ public class AuthCtrl {
             return new ResponseEntity<>("반가워요.. "+user.getUserId()+" 회원님!!", HttpStatus.OK);
         }
         return new ResponseEntity<>("로그인을 먼저 수행하세요~~", HttpStatus.OK);
+    }
+
+    // 아이디 중복 확인 API
+    @GetMapping("/checkUserId")
+    public ResponseEntity<Boolean> checkUserIdAvailability(@RequestParam String userId){
+        int count = userRepo.countByUserId(userId);
+        boolean isAvailable = count == 0;
+        return ResponseEntity.ok(isAvailable);
     }
 }
 
