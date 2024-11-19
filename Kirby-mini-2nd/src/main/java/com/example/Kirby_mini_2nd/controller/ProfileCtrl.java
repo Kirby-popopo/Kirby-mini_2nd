@@ -56,10 +56,7 @@ public class ProfileCtrl {
             @RequestParam("gender") String gender,
             @RequestParam("id") String id)
     {
-        String result = profileSvc.updateProfile(id, file, fileName, bio, gender);
-        if (result.equals("UpdateError")){
-            return ResponseModel.MakeResponse("fail", HttpStatus.OK);
-        }
+        profileSvc.updateProfile(id, file, bio, gender);
 
         return ResponseModel.MakeResponse("good", HttpStatus.OK);
     }
