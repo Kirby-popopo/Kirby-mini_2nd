@@ -1,14 +1,18 @@
 package com.example.Kirby_mini_2nd.service;
 
-import com.example.Kirby_mini_2nd.controller.PostCtrl;
 import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.PostsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.servlet.ModelAndView;
 
-import javax.swing.*;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PostSvc {
@@ -28,17 +32,18 @@ public class PostSvc {
             return "게시물 저장 실패"+e.getMessage(); // 에러메세지 console에서 보인다
         }
     }
-    public List<Posts> ShowMain(String userId){
-        // id가 일치하는 사람의 게시물만 보이게 할거임 vo써야하나?
-        // 메인페이지 = 게시물 리스트 5개 보여주기
-        // findById 하면 pk로 찾게되는데 그럼optional로 가져온다 ... getBy 써야겠지..?
-        // 하나만 가져올게 아니라 모든컬럼가져와야하니까
-        // 레포 쿼리문으로 다가져오기 리턴은 리스트 나오게
+    public Page<Posts> ShowMain(String userId,int pageNumber){
+
         try {
-            return postsRepo.findByUserId(userId);
+            PageRequest pageRequest = PageRequest.of(pageNumber,5,Sort.by("post_time"));
+            Page<Posts> userPost = postsRepo.findByUserId(userId,pageRequest);
+            if(userPost.stream().count() != 0){ //count 개수 -> 페이지 안에 들어있는 post개수
+                return userPost;
+            }
         } catch (Exception e) {
             return null;
         }
+        return null;
     }
     public String UpdatePost(Posts posts){ //repo에서 찾아서 수정하고 저장
         try {
@@ -53,9 +58,9 @@ public class PostSvc {
             return "수정 실패";
         }
     }
-    public String deletePost(Posts posts){ //repo에서 찾아서 삭제
+    public String deletePost(int Post_pk) { //repo에서 찾아서 삭제
         try {
-            postsRepo.deleteById(posts.getPost_pk());
+            postsRepo.deleteById(Post_pk);
             //pk지우기 시도했을때 cascade로 해당 로우 지우기 및 관계 로우 삭제
             return "수정 성공";
         } catch (Exception e) {
