@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-
 /*
 *  유저 관련 서비스 생성시 현재 유저 관련 코드 삭제
 * */
@@ -28,7 +27,6 @@ public class ProfileCtrl {
         this.followSvc = followSvc;
         this.userRepo = userRepo; // 삭제
     }
-
     @PostMapping("/Profile")
     public ResponseEntity<ResponseModel> AllUserProfile(@RequestBody Map<String, String> requestData){
         String userId = requestData.get("userId");
@@ -44,10 +42,8 @@ public class ProfileCtrl {
                 follower,
                 following
                 );
-
         return ResponseModel.MakeResponse(userProfileVO, HttpStatus.OK);
     }
-
     @PostMapping("/updateProfile")
     public ResponseEntity<ResponseModel> UpdateProfile(
             @RequestParam("updateImage") MultipartFile file,
