@@ -29,8 +29,7 @@ public class SpringSecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // CSRF 보호 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/signup","/api/auth/login").permitAll()  // 특정 경로 허용
-                        .anyRequest().authenticated()  // 나머지 경로는 인증 필요
+                        .anyRequest().permitAll()  // 모든 요청 허용
                 )
                 .httpBasic();  // 기본 폼 로그인 방식 사용 (기존 httpBasic 대체)
         return http.build();

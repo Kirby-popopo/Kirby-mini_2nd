@@ -17,7 +17,7 @@ public class ProfileSvc {
     }
 
     public String updateProfile(String id, MultipartFile file, String bio, String gender){
-        User updateUser = userRepo.findByUserId(id).get();
+        User updateUser = userRepo.findById(id).get();
 
         String savedFileImage = FileUtil.SaveFileImage(file);
 

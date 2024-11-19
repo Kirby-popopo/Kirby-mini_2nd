@@ -6,7 +6,6 @@ import com.example.Kirby_mini_2nd.repository.entity.MessageType;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Component;
@@ -37,111 +36,124 @@ public class MyWebSocketHandler extends TextWebSocketHandler {
     @Autowired
     private ChannelTopic topic;
 
-    // 모든 세션을 관리하기 위한 세트
+    // 모든 WebSocket 세션 관리
     private final Set<WebSocketSession> sessions = new CopyOnWriteArraySet<>();
-    private final Gson gson = GsonConfig.getGson(); // Gson 인스턴스를 가져옴
     private final Map<WebSocketSession, Integer> sessionRoomMap = new ConcurrentHashMap<>();
+    private final Map<WebSocketSession, Boolean> explicitLeaveFlag = new ConcurrentHashMap<>();
 
+    private final Gson gson = GsonConfig.getGson(); // Gson 인스턴스 생성
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         sessions.add(session);
-
         try {
-            // WebSocket 세션의 URI에서 방 ID 추출
+            // URI에서 방 ID 추출
             String uri = session.getUri().toString();
             log.info("WebSocket 연결 시도: URI = {}", uri);
 
-            // URI 예시: ws://localhost:8090/ws/{roomId}
             String[] uriSegments = uri.split("/");
-            String roomIdString = uriSegments[uriSegments.length - 1]; // 마지막 부분이 방 ID라고 가정
+            String roomIdString = uriSegments[uriSegments.length - 1];
 
-            // 방 ID 추출 시 유효성 검사
-            if (!roomIdString.matches("\\d+")) { // 방 ID가 숫자가 아닐 경우
+            if (!roomIdString.matches("\\d+")) {
                 throw new IllegalArgumentException("유효하지 않은 방 ID입니다: " + roomIdString);
             }
 
             int roomId = Integer.parseInt(roomIdString);
             sessionRoomMap.put(session, roomId); // 세션에 방 ID 매핑
 
-            // 채팅방 사용자 수 증가
+            // 사용자 수 증가
             int userCount = chatService.increaseUserCount(roomId);
-            log.info("New session connected: {}, Room ID: {}, Current User Count: {}", session.getId(), roomId, userCount);
+            log.info("새 세션 연결: {}, Room ID: {}, 현재 사용자 수: {}", session.getId(), roomId, userCount);
 
-        } catch (NumberFormatException e) {
-            log.error("방 ID를 파싱하는데 실패했습니다. URI: {}", session.getUri(), e);
-            session.close(CloseStatus.BAD_DATA); // 잘못된 데이터로 인해 세션을 종료
-        } catch (IllegalArgumentException e) {
-            log.error("잘못된 방 ID입니다: {}", session.getUri(), e);
-            session.close(CloseStatus.BAD_DATA); // 잘못된 데이터로 인해 세션을 종료
+        } catch (Exception e) {
+            log.error("WebSocket 연결 중 에러 발생: {}", e.getMessage());
+            session.close(CloseStatus.BAD_DATA);
         }
     }
 
-
-
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) {
-        System.out.println("Received message: " + message.getPayload());
+        log.info("수신된 메시지: {}", message.getPayload());
 
-        // Gson을 사용하여 JSON 문자열을 ChatMessage 객체로 변환
         try {
+            // JSON 메시지를 객체로 변환
             ChatMessage chatMessage = gson.fromJson(message.getPayload(), ChatMessage.class);
-            chatMessage.setType(MessageType.TALK); // TALK 타입 설정
-            System.out.println("채팅 메시지 역직렬화 성공: " + chatMessage);
-
-            // Redis Publisher를 통해 발행
-            redisPublisher.publishAndSaveMessage(topic, chatMessage);
+            chatMessage.setType(MessageType.TALK); // 메시지 타입 설정
+            redisPublisher.publishAndSaveMessage(topic, chatMessage); // 메시지 발행
         } catch (Exception e) {
-            System.err.println("메시지 파싱 오류: " + e.getMessage());
+            log.error("메시지 파싱 오류: {}", e.getMessage());
         }
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         sessions.remove(session);
-        System.out.println("Session closed: " + session.getId());
+        log.info("세션 종료: {}", session.getId());
 
-        // 세션에 매핑된 방 ID를 가져옵니다.
         Integer roomId = sessionRoomMap.get(session);
 
         if (roomId != null) {
-            // 채팅방 사용자 수 감소
+            // 명시적 나가기 확인
+            if (!isExplicitLeave(session)) {
+                log.info("뒤로가기 또는 비정상 종료로 인해 방을 나가지 않음: Room ID: {}", roomId);
+                return;
+            }
+
+            // 사용자 수 감소
             int userCount = chatService.decreaseUserCount(roomId);
 
-            // 사용자 수가 0 이상이면 퇴장 메시지 전송
             if (userCount > 0) {
-                // 퇴장(LEAVE) 메시지 생성 및 전송
+                // 사용자 퇴장 메시지 생성 및 발행
                 ChatMessage leaveMessage = new ChatMessage();
                 leaveMessage.setType(MessageType.LEAVE);
                 leaveMessage.setMessage(session.getId() + "님이 퇴장하였습니다.");
                 leaveMessage.setRoomId(roomId);
                 leaveMessage.setSender("System");
-
-                // Redis에 발행 (저장하지 않음)
                 redisPublisher.publishMessage(topic, leaveMessage);
-                System.out.println("사용자 퇴장 메시지 발행: Room ID: " + roomId + ", Session ID: " + session.getId());
             } else {
-                // 마지막 사용자가 나가는 경우 채팅방과 내역 삭제
-                System.out.println("마지막 사용자가 나갔으므로 채팅방: " + roomId + " 삭제");
+                // 마지막 사용자 퇴장 시 채팅방 삭제
+                log.info("마지막 사용자가 나가므로 채팅방 {} 삭제", roomId);
                 chatService.removeChatRoom(roomId);
                 redisTemplate.delete("chatRoom:" + roomId);
             }
+
             // 세션 매핑 정보 제거
             sessionRoomMap.remove(session);
         }
     }
 
-    // Redis에서 수신된 메시지를 연결된 모든 클라이언트에게 브로드캐스트
+    // 명시적으로 나가기 플래그 설정
+    public void markExplicitLeave(WebSocketSession session) {
+        explicitLeaveFlag.put(session, true);
+    }
+
+    // 명시적으로 나갔는지 확인
+    public boolean isExplicitLeave(WebSocketSession session) {
+        return explicitLeaveFlag.getOrDefault(session, false);
+    }
+
+    // 사용자와 연결된 WebSocket 세션 검색
+    public WebSocketSession getSessionForUser(String userId, int roomId) {
+        for (WebSocketSession session : sessions) {
+            String sessionUserId = (String) session.getAttributes().get("userId");
+            Integer sessionRoomId = sessionRoomMap.get(session);
+
+            if (userId.equals(sessionUserId) && roomId == sessionRoomId) {
+                return session;
+            }
+        }
+        return null;
+    }
+
+    // Redis 메시지를 모든 세션에 브로드캐스트
     public void broadcastMessage(String messageJson) {
-        System.out.println("WebSocket으로 메시지 브로드캐스트: " + messageJson);
-        for (WebSocketSession sess : sessions) {
-            if (sess.isOpen()) {
+        log.info("Redis로부터 수신된 메시지를 브로드캐스트: {}", messageJson);
+        for (WebSocketSession session : sessions) {
+            if (session.isOpen()) {
                 try {
-                    sess.sendMessage(new TextMessage(messageJson));
-                    System.out.println("메시지를 클라이언트로 전송: " + sess.getId());
+                    session.sendMessage(new TextMessage(messageJson));
                 } catch (IOException e) {
-                    System.err.println("메시지 전송 오류 발생: " + e.getMessage());
-                    e.printStackTrace();
+                    log.error("메시지 전송 실패: {}", e.getMessage());
                 }
             }
         }
