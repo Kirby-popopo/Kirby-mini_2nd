@@ -4,13 +4,11 @@ import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.security.config.Customizer.withDefaults;
@@ -23,8 +21,8 @@ public class SpringSecurityConfig {
     @Autowired
     private UserRepo userRepo;
 
-    @Autowired
-    private CorsConfig corsConfig;
+//    @Autowired
+//    private CorsConfig corsConfig;
 
     @Autowired
     private AuthenticationConfiguration authenticationConfiguration;
@@ -38,11 +36,11 @@ public class SpringSecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors(withDefaults()) //Cors 설정 허용
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable())  // CSRF 보호 비활성화
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/**").permitAll()
-                        .anyRequest().authenticated()
-                );
+                        .anyRequest().permitAll()  // 모든 요청 허용
+                )
+                .httpBasic(); // 기본 폼 로그인 방식 사용 (기존 httpBasic 대체)
         return http.build();
     }
 }

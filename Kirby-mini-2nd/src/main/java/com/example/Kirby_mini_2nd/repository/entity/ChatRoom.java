@@ -19,6 +19,7 @@ public class ChatRoom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "roomid")
     private int roomId; // 시퀀스 번호
+
     @Column(name = "room_name")
     private String room_name; // 채팅방 이름
 

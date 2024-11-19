@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Clone - Dark Mode</title>
+    <!-- 사이드바 css -->
+    <link rel="stylesheet" href="/sidebar/sidebar.css">
+    <!-- 메뉴 css -->
+    <link rel="stylesheet" href="/sidebar/menu.css">
+    <!-- 공통 베이스 css -->
+    <link rel="stylesheet" href="/base/base.css">
+
+    <!-- mainPage css -->
+    <link rel="stylesheet" href="/mainPage/mainPage.css">
+
+</head>
+<body>
+<!--<h1>Welcome, <span th:text="${User.name}">User</span></h1>-->
+
+    <!-- sidebar html 불러오기 -->
+    <div id="sidebar-container"></div>
+
+    <script>
+        fetch('/sidebar/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading sidebar:', error));
+    </script>
+    <!-- sidebar html 불러오기 끝 -->
+<div class="container">
+    <div class="main-content">
+        <div class="post">
+            <div class="post-header">
+                <img src="https://media.istockphoto.com/id/466167557/ko/%EC%82%AC%EC%A7%84/%EC%8B%A0%EC%83%9D%EC%95%84-chick.jpg?s=612x612&w=0&k=20&c=94vZS_L2t47Yb1DtHTYv1VBjVP6Ecu_SgmH79aCfEfE=" alt="병아리 프로필">
+                <span class="username">병아리</span>
+            </div>
+            <div class="post-image">
+                <img src="https://img.freepik.com/premium-photo/fried-rice-with-fried-egg-delicious-food-photography-illustration-created-with-generative-ai_115122-6028.jpg" alt="계란프라이">
+            </div>
+            <div class="post-actions">
+                <button>❤️</button>
+                <button>💬</button>
+                <button>🔖</button>
+            </div>
+            <div class="post-likes">
+                뱀님 외 2명이 좋아합니다
+            </div>
+            <div class="post-content">
+                <span class="username">병아리</span>
+                <span class="content">2024-10-02</span>
+                <span class="content" id="full-content" style="display: none;">갓생살자<br>#아침 #맛있다</span>
+                <span class="more" id="show-more" onclick="toggleContent()">더 보기</span>
+            </div>
+            <div class="post-comments">
+                <p>댓글 2개</p>
+                <div id="comments" style="display: none;">
+                    <p><span class="username">뱀</span> 맛있겠다 :)</p>
+                    <p><span class="username">사자</span> @호랑이 갓생 가보자고</p>
+                </div>
+                <span class="more" id="show-comments" onclick="toggleComments()">댓글 모두 보기</span>
+            </div>
+                <div class="comment-input">
+                    <input type="text" placeholder="댓글 달기...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- 해당 부분부터 게시글 가져오는 부분 끝 -->
+
+<!-- 게시글 입력 하는 부분 -->
+
+<div id="createPostModal" class="modal">
+    <div class="modal-content">
+        <form method="post" action="/posts">
+            <h2>새 게시물 만들기</h2>
+            <button type="button" id="backButton" onclick="goBack()" style="display: none;">←</button>
+            <div class="post-image">
+                <img id="selectedImagePreview" src="" alt="선택한 이미지" style="display: none;">
+            </div>
+            <input type="file" id="fileInput" onchange="convertToBase64(event)">
+            <input type="hidden" id="base64Image" name="base64Image">
+            <textarea name="content_box" maxlength="2200" placeholder="게시글 내용을 입력하세요"></textarea>
+            <input type="submit" value="공유하기">
+            <a herf="/mainPage">취소</a>
+        </form>
+    </div>
+</div>
+<!-- 게시글 입력 하는 부분 끝 -->
+<!--게시글 입력 후 리다이렉트 + 팝업창 띄우기 (작성한 게시글 미리보기)-->
+
+
+<!-- 검색, 알림 기능 사이드바 -->
+
+<div id="menu-container"></div>
+<script>
+    fetch('/sidebar/menu.html')
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('menu-container').innerHTML = data;
+
+             var createPostButton = document.getElementById("createPost");
+        var modal = document.getElementById("createPostModal");
+
+        if (createPostButton) {
+            createPostButton.addEventListener('click', function(event) {
+                console.log("test");
+                modal.style.display = "block"; // 게시글 작성 모달을 열기
+            });
+        }
+
+   window.onclick = function(event) {
+       if (event.target == modal) {
+           modal.style.display = "none"; // 모달 외부를 클릭하면 모달 닫기
+       }
+   }
+        })
+        .catch(error => console.error('Error loading menu:', error));
+</script>
+
+<script src="/sidebar/menu.js" type="text/javascript"></script>
+<!-- 검색, 알림 기능 사이드바 끝-->
+
+<script>
+    // 게시글 컨텐츠 토글관련
+   function toggleContent() {
+       var fullContent = document.getElementById("full-content");
+       var showMore = document.getElementById("show-more");
+       if (fullContent.style.display === "none") {
+           fullContent.style.display = "inline";
+           showMore.textContent = "숨기기";
+       } else {
+           fullContent.style.display = "none";
+           showMore.textContent = "더 보기";
+       }
+   }
+
+   function toggleComments() {
+       var comments = document.getElementById("comments");
+       var showComments = document.getElementById("show-comments");
+       if (comments.style.display === "none") {
+           comments.style.display = "block";
+           showComments.textContent = "댓글 숨기기";
+       } else {
+           comments.style.display = "none";
+           showComments.textContent = "댓글 모두 보기";
+       }
+   }
+
+   var profileButton = document.getElementById("profile");
+   profileButton.addEventListener('click', function(event){
+
+        window.location.href = "/test";
+   });
+
+   // 파일 선택 후 이미지 미리보기 및 Base64 인코딩 처리
+   function convertToBase64(event) {
+       var reader = new FileReader();
+       reader.onload = function() {
+           var output = document.getElementById('selectedImagePreview');
+           output.src = reader.result;
+           output.style.display = "block"; // 선택한 이미지를 표시
+
+           // Base64 인코딩된 이미지 데이터를 숨겨진 필드에 저장
+           document.getElementById('base64Image').value = reader.result;
+
+           // 뒤로가기 버튼도 이미지 선택 후에만 표시
+           document.getElementById('backButton').style.display = "block";
+       };
+       reader.readAsDataURL(event.target.files[0]);
+   }
+
+   function goBack() {
+       document.getElementById('selectedImagePreview').style.display = "none"; // 선택한 이미지 숨기기
+       document.getElementById('fileInput').value = ""; // 파일 입력 초기화
+       document.querySelector('textarea[name="content_box"]').style.display = "none"; // 텍스트 박스 숨기기
+       document.getElementById('backButton').style.display = "none"; // 뒤로가기 버튼 숨기기
+   }
+</script>
+
+<!-- 브라우저 비율에 따른 사이드바 숨김 기능 -->
+<script>
+    // JavaScript for responsive sidebar
+    function handleResize() {
+        const sidebar = document.querySelector('.sidebar');
+        if (window.innerWidth <= 768) {
+            sidebar.style.display = 'none';
+        } else {
+            sidebar.style.display = 'block';
+        }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Call once to set initial state
+</script>
+</body>
+</html>
