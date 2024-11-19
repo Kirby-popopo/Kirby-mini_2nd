@@ -22,7 +22,7 @@ public class UserSvc {
     }
 
     public User getUserId(String userId) {
-        return userRepo.findByUserId(userId);
+        return userRepo.findById(userId).get();
     }
 
     public List<User> getAllUsers() {
