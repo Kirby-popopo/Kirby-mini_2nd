@@ -37,16 +37,19 @@ public class AuthSvc {
                 .description(user.getDescription())
                 .build();
 
-       /* validateDuplicateMember(user);*/
-
         return userRepo.save(signUpUser);
     }
-    
+
+
+    public int countByUserId(String userId) {
+        return userRepo.countByUserId(userId);
+    }
+
     // 아이디 중복 확인
-    private void validateDuplicateMember(User user) {
-        userRepo.findById(user.getUserId())
-                .ifPresent(u -> {
-                    throw new IllegalStateException("이미 존재하는 회원입니다.");
-                });
+    private void validateDuplicateUser(String userId) {
+        int count = userRepo.countByUserId(userId);
+        if(count > 0) {
+            throw new IllegalStateException("이미 존재하는 회원입니다.");
+            }
     }
 }
