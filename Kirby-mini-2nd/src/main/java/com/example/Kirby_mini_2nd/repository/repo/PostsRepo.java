@@ -16,7 +16,5 @@ public interface PostsRepo extends JpaRepository <Posts, Integer> { //post ì˜ ë
     public Page<Posts> findByUserId(@Param("userId")String id,Pageable page);
 
 
-
-
 } // table type , PK type
 

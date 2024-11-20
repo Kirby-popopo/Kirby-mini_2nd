@@ -3,8 +3,10 @@ package com.example.Kirby_mini_2nd.controller;
 import com.example.Kirby_mini_2nd.model.ResponseModel;
 import com.example.Kirby_mini_2nd.model.dto.ProfileDTO;
 import com.example.Kirby_mini_2nd.model.vo.ProfileVO;
+import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.FollowSvc;
+import com.example.Kirby_mini_2nd.service.PostSvc;
 import com.example.Kirby_mini_2nd.service.ProfileSvc;
 import jakarta.annotation.Nullable;
 import com.example.Kirby_mini_2nd.service.ProfileSvc;
@@ -30,8 +32,8 @@ public class ProfileCtrl {
     @Autowired
     public ProfileCtrl(FollowSvc followSvc, UserRepo userRepo, ProfileSvc profileSvc){
         this.followSvc = followSvc;
-        this.userRepo = userRepo; // 삭제
         this.profileSvc = profileSvc;
+        this.userRepo = userRepo; // 삭제
     }
 
     @PostMapping("/Profile")
@@ -61,11 +63,10 @@ public class ProfileCtrl {
             @RequestParam("gender") String gender,
             @RequestParam("id") String id)
     {
-        String result = profileSvc.updateProfile(id, file, fileName, bio, gender);
+        String result = profileSvc.updateProfile(id, file, bio, gender);
         if (result.equals("UpdateError")){
             return ResponseModel.MakeResponse("fail", HttpStatus.OK);
         }
-
         return ResponseModel.MakeResponse("good", HttpStatus.OK);
     }
 }
