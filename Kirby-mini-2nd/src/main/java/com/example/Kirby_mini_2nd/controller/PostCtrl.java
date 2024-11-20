@@ -66,11 +66,16 @@ public class PostCtrl {
     @PostMapping("/profilePage")
     public ResponseEntity<ResponseModel> ShowProfileContents(@RequestBody Map<String,String>requestData){
         String userId =requestData.get("userId");
-
         List<Posts> profileContents = postSvc.ShowProfileContents(userId);
-
         return ResponseModel.MakeResponse(profileContents,HttpStatus.OK);
     }
+    @PostMapping("/comment")
+    public ResponseEntity<ResponseModel> getComment(@RequestBody Map<String,Integer>requestData){
+        int post = requestData.get("post_pk");
+        String savedComment = commentSvc.saveComment(post);
+        return ResponseModel.MakeResponse(savedComment,HttpStatus.OK);
+    } // postPk
+    //게시물아이디 , 댓글 내용
 }
 //객체 만들어서 서비스에 보낼거임
 
