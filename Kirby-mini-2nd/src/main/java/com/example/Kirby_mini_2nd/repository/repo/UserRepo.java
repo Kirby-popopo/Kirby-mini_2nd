@@ -29,7 +29,7 @@ public interface UserRepo extends JpaRepository<User, String> {
     List<SearchUserDTO> findByUserIdLikeTargetId(@Param("id") String id);
 
     // 프로필 검색
-    @Query("SELECT new com.example.Kirby_mini_2nd.model.dto.ProfileDTO(u.name, u.profileImage, u.description) FROM User u WHERE u.userId = :id")
+    @Query("SELECT new com.example.Kirby_mini_2nd.model.dto.ProfileDTO(u.name, u.profileImage, u.description, u.gender) FROM User u WHERE u.userId = :id")
     ProfileDTO findByUserIdForProfile(@Param("id") String id);
 
     // 로그인 인증

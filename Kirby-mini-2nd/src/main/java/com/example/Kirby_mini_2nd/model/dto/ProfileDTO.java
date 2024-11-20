@@ -11,10 +11,12 @@ public class ProfileDTO {
     private String name;
     private String profileImage;
     private String description;
+    private String gender;
 
-    public ProfileDTO(String name, String profileImage, String description) {
+    public ProfileDTO(String name, String profileImage, String description, String gender) {
         this.name = name;
         this.profileImage = profileImage;
         this.description = description;
+        this.gender = gender;
     }
 }

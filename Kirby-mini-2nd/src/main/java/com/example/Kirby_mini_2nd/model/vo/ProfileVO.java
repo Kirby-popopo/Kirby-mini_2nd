@@ -11,6 +11,7 @@ public class ProfileVO {
     private String userName;
     private String userProfileImage;
     private String userDescription;
+    private String userGender;
     private List<String> following;
     private List<String> follower;
 
@@ -23,5 +24,16 @@ public class ProfileVO {
         this.userDescription = userDescription;
         this.follower = follower;
         this.following = following;
+    }
+
+    public ProfileVO(String name,
+                     String profileImage,
+                     String userDescription,
+                     String gender
+    ){
+        this.userName = name;
+        this.userProfileImage = profileImage;
+        this.userDescription = userDescription;
+        this.userGender = gender;
     }
 }

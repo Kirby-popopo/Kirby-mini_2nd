@@ -83,6 +83,16 @@ public class PostSvc {
             return "수정 실패";
         }
     }
-    // 1분이내
 
+    public List<Posts> ShowProfileContents(String userId){
+        try {
+            List<Posts> userPost = postsRepo.findContentsByUserId(userId);
+            if(userPost.stream().count() != 0){ //count 개수 -> 페이지 안에 들어있는 post개수
+                return userPost;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
 }

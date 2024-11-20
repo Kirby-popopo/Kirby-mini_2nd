@@ -24,6 +24,7 @@ import java.util.Map;
 * */
 @RestController
 @CrossOrigin(origins = "*")
+@RequestMapping("/api")
 public class ProfileCtrl {
     FollowSvc followSvc;
     ProfileSvc profileSvc;
@@ -34,6 +35,22 @@ public class ProfileCtrl {
         this.followSvc = followSvc;
         this.profileSvc = profileSvc;
         this.userRepo = userRepo; // 삭제
+    }
+
+    @PostMapping("/GetUser")
+    public ResponseEntity<ResponseModel> GetUserProfile(@RequestBody Map<String, String> requestData){
+        String userId = requestData.get("userId");
+
+        ProfileDTO userProfileDTO = userRepo.findByUserIdForProfile(userId);// 삭제
+
+        ProfileVO userProfileVO = new ProfileVO(
+                userProfileDTO.getName(),
+                userProfileDTO.getProfileImage(),
+                userProfileDTO.getDescription(),
+                userProfileDTO.getGender()
+        );
+
+        return ResponseModel.MakeResponse(userProfileVO, HttpStatus.OK);
     }
 
     @PostMapping("/Profile")
@@ -63,7 +80,7 @@ public class ProfileCtrl {
             @RequestParam("gender") String gender,
             @RequestParam("id") String id)
     {
-        String result = profileSvc.updateProfile(id, file, bio, gender);
+        String result = profileSvc.updateProfile(id, file, fileName, bio, gender);
         if (result.equals("UpdateError")){
             return ResponseModel.MakeResponse("fail", HttpStatus.OK);
         }

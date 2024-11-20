@@ -15,6 +15,8 @@ public interface PostsRepo extends JpaRepository <Posts, Integer> { //post Ïùò Î
     @Query("SELECT p FROM Posts p WHERE p.user_id = :userId")
     public Page<Posts> findByUserId(@Param("userId")String id,Pageable page);
 
+    @Query("SELECT p FROM Posts p WHERE p.user_id = :userId")
+    public List<Posts> findContentsByUserId(@Param("userId")String id);
 
 } // table type , PK type
 

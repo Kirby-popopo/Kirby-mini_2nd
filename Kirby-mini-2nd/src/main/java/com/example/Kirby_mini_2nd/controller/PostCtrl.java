@@ -62,6 +62,15 @@ public class PostCtrl {
         String deleted = postSvc.deletePost(post);
         return ResponseModel.MakeResponse(deleted,HttpStatus.OK);
     }
+
+    @PostMapping("/profilePage")
+    public ResponseEntity<ResponseModel> ShowProfileContents(@RequestBody Map<String,String>requestData){
+        String userId =requestData.get("userId");
+
+        List<Posts> profileContents = postSvc.ShowProfileContents(userId);
+
+        return ResponseModel.MakeResponse(profileContents,HttpStatus.OK);
+    }
 }
 //객체 만들어서 서비스에 보낼거임
 

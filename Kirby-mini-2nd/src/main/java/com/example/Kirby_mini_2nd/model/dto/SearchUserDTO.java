@@ -8,6 +8,7 @@ import lombok.ToString;
 @Setter
 @ToString
 public class SearchUserDTO {
+
     private String userId;
     private String profileImage;
     private String name;
