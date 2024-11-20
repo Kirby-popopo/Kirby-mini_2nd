@@ -2,6 +2,8 @@ package com.example.Kirby_mini_2nd.service;
 
 import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.PostsRepo;
+import com.example.Kirby_mini_2nd.util.FileUtil;
+import jdk.jshell.execution.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,8 +12,10 @@ import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -21,11 +25,23 @@ public class PostSvc {
     public PostSvc(PostsRepo postsRepo){
         this.postsRepo = postsRepo;
     }
-
-    public String SavePost(Posts posts) {
-    //객체 ctrl에 있다
-        //외부로 데이터가 전송될때 try catch 항상감싸주기 예를들면 repo
+    public String SavePost(Posts posts,MultipartFile file) {
         try {
+            String newFile = FileUtil.SaveMedia(file);
+            String originalFilename =file.getOriginalFilename();
+            String splitFile = "";
+            if(originalFilename != null && originalFilename.contains(".")){
+                splitFile = originalFilename.substring(originalFilename.lastIndexOf(".")+1);
+            }
+            else{
+                return "지원핮지않는 형식이다";
+            }
+            if( splitFile.equals("jpg") || splitFile.equals("png")){
+                posts.setImage_url(newFile); //이미지일때
+            }
+            else {
+                posts.setMedia_url(newFile); //동영상일때
+            }
             postsRepo.save(posts);
             return "게시물 저장 성공";
         } catch (Exception e) {
@@ -67,4 +83,6 @@ public class PostSvc {
             return "수정 실패";
         }
     }
+    // 1분이내
+
 }

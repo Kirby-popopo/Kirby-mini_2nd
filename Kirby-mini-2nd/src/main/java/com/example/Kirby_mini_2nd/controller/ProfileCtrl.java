@@ -3,8 +3,10 @@ package com.example.Kirby_mini_2nd.controller;
 import com.example.Kirby_mini_2nd.model.ResponseModel;
 import com.example.Kirby_mini_2nd.model.dto.ProfileDTO;
 import com.example.Kirby_mini_2nd.model.vo.ProfileVO;
+import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.FollowSvc;
+import com.example.Kirby_mini_2nd.service.PostSvc;
 import com.example.Kirby_mini_2nd.service.ProfileSvc;
 import jakarta.annotation.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +25,13 @@ import java.util.Map;
 @CrossOrigin(origins = "*")
 public class ProfileCtrl {
     FollowSvc followSvc;
+    ProfileSvc profileSvc;
     UserRepo userRepo; // 삭제
 
     @Autowired
     public ProfileCtrl(FollowSvc followSvc, UserRepo userRepo, ProfileSvc profileSvc){
         this.followSvc = followSvc;
+        this.profileSvc = profileSvc;
         this.userRepo = userRepo; // 삭제
     }
 
@@ -49,7 +53,6 @@ public class ProfileCtrl {
 
         return ResponseModel.MakeResponse(userProfileVO, HttpStatus.OK);
     }
-
     @PostMapping("/updateProfile")
     public ResponseEntity<ResponseModel> UpdateProfile(
             @Nullable @RequestParam("updateImage") MultipartFile file,
@@ -58,11 +61,10 @@ public class ProfileCtrl {
             @RequestParam("gender") String gender,
             @RequestParam("id") String id)
     {
-        String result = profileSvc.updateProfile(id, file, fileName, bio, gender);
+        String result = profileSvc.updateProfile(id, file, bio, gender);
         if (result.equals("UpdateError")){
             return ResponseModel.MakeResponse("fail", HttpStatus.OK);
         }
-
         return ResponseModel.MakeResponse("good", HttpStatus.OK);
     }
 }
