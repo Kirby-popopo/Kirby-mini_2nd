@@ -1,8 +1,10 @@
 package com.example.Kirby_mini_2nd.controller;
 
 import com.example.Kirby_mini_2nd.model.ResponseModel;
+import com.example.Kirby_mini_2nd.repository.entity.Comments;
 import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.PostsRepo;
+import com.example.Kirby_mini_2nd.service.CommentSvc;
 import com.example.Kirby_mini_2nd.service.PostSvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -44,7 +46,7 @@ public class PostCtrl {
 
     @PostMapping("/mainPage")
     public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,String>requestData){
-        String userId =requestData.get("userId");
+            String userId =requestData.get("userId");
         int page = Integer.parseInt(requestData.get("page"));
         Page<Posts> main = postSvc.ShowMain(userId,page);
         return ResponseModel.MakeResponse(main,HttpStatus.OK);
@@ -66,12 +68,8 @@ public class PostCtrl {
     @PostMapping("/profilePage")
     public ResponseEntity<ResponseModel> ShowProfileContents(@RequestBody Map<String,String>requestData){
         String userId =requestData.get("userId");
-
         List<Posts> profileContents = postSvc.ShowProfileContents(userId);
-
         return ResponseModel.MakeResponse(profileContents,HttpStatus.OK);
     }
 }
 //객체 만들어서 서비스에 보낼거임
-
-

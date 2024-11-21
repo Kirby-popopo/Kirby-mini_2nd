@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 @Setter
 @ToString
 
-public class comments {
+public class Comments {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int comment_pk;

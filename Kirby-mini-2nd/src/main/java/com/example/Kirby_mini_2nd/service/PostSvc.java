@@ -49,7 +49,6 @@ public class PostSvc {
         }
     }
     public Page<Posts> ShowMain(String userId,int pageNumber){
-
         try {
             PageRequest pageRequest = PageRequest.of(pageNumber,5,Sort.by("post_time"));
             Page<Posts> userPost = postsRepo.findByUserId(userId,pageRequest);
@@ -83,7 +82,6 @@ public class PostSvc {
             return "수정 실패";
         }
     }
-
     public List<Posts> ShowProfileContents(String userId){
         try {
             List<Posts> userPost = postsRepo.findContentsByUserId(userId);
