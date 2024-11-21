@@ -3,6 +3,9 @@ package com.example.Kirby_mini_2nd.controller;
 import com.example.Kirby_mini_2nd.repository.entity.ChatMessage;
 import com.example.Kirby_mini_2nd.repository.entity.ChatRoom;
 import com.example.Kirby_mini_2nd.repository.entity.MessageType;
+import com.example.Kirby_mini_2nd.dto.UserDTO;
+import com.example.Kirby_mini_2nd.repository.entity.User;
+import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.example.Kirby_mini_2nd.service.ChatService;
 import com.example.Kirby_mini_2nd.service.MyWebSocketHandler;
 import com.example.Kirby_mini_2nd.service.RedisPublisher;
@@ -11,13 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.WebSocketSession;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -31,6 +38,9 @@ public class ChatController {
 
     @Autowired
     private ChannelTopic topic;
+
+    @Autowired
+    private UserRepo userRepo;
 
     // 생성자 주입
     @Autowired
@@ -49,7 +59,7 @@ public class ChatController {
             return chatService.findAllRoom(); // 모든 채팅방 반환
         }
         log.info("사용자 {} 에 대한 채팅방 목록 요청", userId);
-        return chatService.getAvailableRooms(userId);
+        return chatService.getNonExitedRooms (userId);
     }
 
     // 채팅방 입장
@@ -58,12 +68,39 @@ public class ChatController {
         return chatService.getChatRoomById(id);
     }
 
-    // 채팅방 생성
-    @PostMapping("/createRoom")
-    public ChatRoom createRoom(@RequestBody ChatRoom chatRoom) {
-        log.info("채팅방 생성 확인: {}", chatRoom);
-        return chatService.createChatRoom(chatRoom);
+    // 채팅방 가져오기 또는 생성 (다중 유저 지원)
+    @PostMapping("/findOrCreateRoomByExactParticipants")
+    public ResponseEntity<Map<String, Object>> getOrCreateRoom(@RequestBody Map<String, Object> request) {
+        // 요청 데이터 추출
+        List<String> participantIds = (List<String>) request.get("participantIds");
+        String currentUserId = (String) request.get("currentUserId");
+
+        System.out.println("participantIds: " + participantIds);
+        System.out.println("currentUserId: " + currentUserId);
+
+        // 데이터 유효성 검사
+        if (participantIds == null || participantIds.isEmpty() || currentUserId == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+                    "error", "participantIds와 currentUserId는 필수입니다."
+            ));
+        }
+
+        // 서비스 호출
+        int roomId = chatService.findOrCreateRoomByExactParticipants(participantIds, currentUserId);
+
+        // 결과 반환
+        return ResponseEntity.ok(Map.of("roomId", roomId));
     }
+
+
+
+
+    // 채팅방 생성
+//    @PostMapping("/createRoom")
+//    public ChatRoom createRoom(@RequestBody ChatRoom chatRoom) {
+//        log.info("채팅방 생성 확인: {}", chatRoom);
+//        return chatService.createChatRoom(chatRoom);
+//    }
 
     // 메시지 전송 (Redis에 퍼블리시)
     @MessageMapping("/chat/{roomId}")
@@ -105,7 +142,7 @@ public class ChatController {
         }
 
         // 사용자가 나간 방 정보 기록
-        chatService.recordUserExit(userId, roomId);
+        chatService.saveUserExitRecord(userId, roomId);
 
         // 현재 사용자 수 감소
         int userCount = chatService.decreaseUserCount(roomId);
@@ -118,15 +155,41 @@ public class ChatController {
         }
     }
 
+//    // 특정 채팅방의 메시지 가져오기 (페이징 지원)
+//    @GetMapping("/room/{roomId}/messages")
+//    public ResponseEntity<Page<ChatMessage>> getMessages(
+//            @PathVariable Long roomId,
+//            @RequestParam(defaultValue = "0") int page, // 기본 0번째 페이지
+//            @RequestParam(defaultValue = "20") int size // 기본 페이지 크기 20
+//    ) {
+//
+//        System.out.println("===========================================================================");
+//        Page<ChatMessage> messages = chatService.getMessagesByRoomId(roomId, page, size);
+//        return ResponseEntity.ok(messages);
+//    }
     // 특정 채팅방의 메시지 가져오기 (페이징 지원)
-    @GetMapping("/room/{roomId}/messages")
-    public ResponseEntity<Page<ChatMessage>> getMessages(
-            @PathVariable Long roomId,
-            @RequestParam(defaultValue = "0") int page, // 기본 0번째 페이지
-            @RequestParam(defaultValue = "20") int size // 기본 페이지 크기 20
-    ) {
-        Page<ChatMessage> messages = chatService.getMessagesByRoomId(roomId, page, size);
-        return ResponseEntity.ok(messages);
+    @GetMapping("/messages/{roomId}/previous")
+    public ResponseEntity<List<ChatMessage>> getMessages(
+            @PathVariable int roomId,
+            @RequestParam String before,
+            @RequestParam(defaultValue = "20") int limit) {
+        try {
+            List<ChatMessage> previousMessages = chatService.getPreviousMessages(roomId, before, limit);
+            return ResponseEntity.ok(previousMessages);
+        } catch (RuntimeException e) {
+            log.error("이전 메시지 로드 중 오류 발생: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null); // 적절한 상태 코드 반환
+        }
+    }
+
+
+
+
+    @GetMapping("/room/{roomId}/participants")
+    public ResponseEntity<List<UserDTO>> getParticipants(@PathVariable int roomId) {
+        List<UserDTO> participants = chatService.getParticipantsByRoomId(roomId);
+        return ResponseEntity.ok(participants);
     }
 
 }
+

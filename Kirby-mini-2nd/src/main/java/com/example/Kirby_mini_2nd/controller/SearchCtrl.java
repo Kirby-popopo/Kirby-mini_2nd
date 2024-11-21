@@ -5,15 +5,13 @@ import com.example.Kirby_mini_2nd.service.SearchSvc;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
+@RequestMapping("/api")
 public class SearchCtrl {
 
     SearchSvc searchSvc;
@@ -23,7 +21,7 @@ public class SearchCtrl {
         this.searchSvc = searchSvc;
     }
 
-    @PostMapping("/Search")
+    @PostMapping("/SearchUser")
     public ResponseEntity<ResponseModel> SearchUser(@RequestBody Map<String, String> requestData){
         String userId = requestData.get("userId");
         try {
