@@ -108,8 +108,6 @@ public class AuthCtrl {
         log.info("OAuth2로그인 시도");
         String code = params.get("code");
         String redirectUri = params.get("redirect_uri");
-        String clientId = "443880299005-rle9rs9bcdpakhjv59o3v9rhk311ep4b.apps.googleusercontent.com";
-        String clientSecret = "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";
 
         String url = "https://oauth2.googleapis.com/token";
 
