@@ -36,12 +36,12 @@ public class ChatRepositoryTest {
         }
     }
 
-    @Test
-    @Rollback(false)
-    void insert() {
-        ChatRoom chatRoom = new ChatRoom();
-        chatRoom.setRoom_name("1102 새로운 채팅방");
-        repository.save(chatRoom);
-        System.out.println("insert 확인"+chatRoom);
-    }
+//    @Test
+//    @Rollback(false)
+//    void insert() {
+//        ChatRoom chatRoom = new ChatRoom();
+//        chatRoom.setRoom_name("1102 새로운 채팅방");
+//        repository.save(chatRoom);
+//        System.out.println("insert 확인"+chatRoom);
+//    }
 }

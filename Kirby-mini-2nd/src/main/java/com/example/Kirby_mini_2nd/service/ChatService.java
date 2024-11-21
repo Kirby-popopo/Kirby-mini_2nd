@@ -1,11 +1,15 @@
 package com.example.Kirby_mini_2nd.service;
 
+import com.example.Kirby_mini_2nd.dto.UserDTO;
 import com.example.Kirby_mini_2nd.repository.entity.ChatMessage;
 import com.example.Kirby_mini_2nd.repository.entity.ChatRoom;
 import com.example.Kirby_mini_2nd.repository.entity.UserChatExit;
+import com.example.Kirby_mini_2nd.repository.entity.User;
+
 import com.example.Kirby_mini_2nd.repository.repo.ChatMessageRepository;
 import com.example.Kirby_mini_2nd.repository.repo.ChatRoomRepository;
 import com.example.Kirby_mini_2nd.repository.repo.UserChatExitRepository;
+import com.example.Kirby_mini_2nd.repository.repo.UserRepo;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +22,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,6 +44,9 @@ public class ChatService {
     @Autowired
     private UserChatExitRepository userChatExitRepository;
 
+    @Autowired
+    private UserRepo userRepo;
+
     private final RedisTemplate<String, Object> redisTemplate;
     private final Gson gson;
     private final Map<Integer, Integer> roomUserCountMap = new ConcurrentHashMap<>();
@@ -48,7 +58,7 @@ public class ChatService {
     }
 
     // 채팅방 리스트 (나간 방 제외)
-    public List<ChatRoom> getAvailableRooms(String userId) {
+    public List<ChatRoom> getNonExitedRooms (String userId) {
         // 나간 방 ID 조회
         List<Integer> exitedRoomIds = userChatExitRepository.findExitedRoomIdsByUserId(userId);
 
@@ -60,7 +70,7 @@ public class ChatService {
     }
 
     // 사용자가 나간 방 기록
-    public void recordUserExit(String userId, int roomId) {
+    public void saveUserExitRecord(String userId, int roomId) {
         // 사용자가 이미 나간 방이 아닌 경우만 저장
         if (!userChatExitRepository.existsByRoomIdAndUserId(roomId, userId)) {
             userChatExitRepository.save(new UserChatExit(userId, roomId));
@@ -195,4 +205,104 @@ public class ChatService {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "sendDate"));
         return chatMessageRepository.findByRoomId(roomId, pageable);
     }
+
+    public int findOrCreateRoomByExactParticipants(List<String> participantIds, String thisUserId) {
+        // 현재 유저 ID 제외한 다른 유저 ID 가져오기
+        List<String> otherUserIds = participantIds.stream()
+                .filter(id -> !id.equals(thisUserId)) // 현재 사용자 ID 제외
+                .collect(Collectors.toList());
+
+        // 상대방 이름 가져오기
+        List<String> otherUserNames = userRepo.findAllById(otherUserIds).stream()
+                .map(User::getName) // User 엔티티에서 이름 가져오기
+                .collect(Collectors.toList());
+
+        // 채팅방 이름 설정
+        String roomName = otherUserNames.size() == 1
+                ? otherUserNames.get(0)
+                : String.join(", ", otherUserNames);
+
+        // 새로운 채팅방 생성
+        ChatRoom newRoom = new ChatRoom();
+        newRoom.setParticipants(new HashSet<>(participantIds));
+        newRoom.setRoomName(roomName);
+        chatRoomRepository.save(newRoom);
+
+        return newRoom.getRoomId();
+    }
+
+
+    public List<UserDTO> getParticipantsByRoomId(int roomId) {
+        // 채팅방 조회
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("채팅방을 찾을 수 없습니다."));
+
+        // 참여자 ID 추출
+        Set<String> participantIds = chatRoom.getParticipants();
+
+        // 참여자 ID를 기반으로 User 엔티티 조회 및 UserDTO로 변환
+        return userRepo.findAllById(participantIds).stream()
+                .map(user -> new UserDTO(
+                        user.getUserId(),        // userId 필드의 getter 메서드
+                        user.getName(),          // name 필드의 getter 메서드
+                        user.getProfileImage()   // profileImage 필드의 getter 메서드
+                ))
+                .collect(Collectors.toList());
+    }
+
+
+    public List<ChatMessage> getPreviousMessages(int roomId, String before, int limit) {
+        // ISO 8601 형식의 UTC 시간 파싱
+        LocalDateTime beforeDateTime = Instant.parse(before)
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+
+        // Repository 호출
+        List<ChatMessage> messages = chatMessageRepository.findMessagesBefore(roomId, beforeDateTime);
+        return messages.stream().limit(limit).collect(Collectors.toList());
+    }
+
+
+    // 채팅방 찾기 - 특정 참가자 목록에 맞는 방이 있는지 검색
+    public Optional<ChatRoom> findRoomByParticipants(List<String> participantIds, String currentUserId) {
+        Set<String> allParticipants = new HashSet<>(participantIds);
+        allParticipants.add(currentUserId);
+
+        // 모든 방을 검색하여 참가자 목록이 일치하는 방을 찾음
+        List<ChatRoom> allRooms = chatRoomRepository.findAll(); // 가능한 최적화를 위해 더 나은 쿼리가 필요할 수 있음
+        for (ChatRoom room : allRooms) {
+            if (room.getParticipants().equals(allParticipants)) {
+                return Optional.of(room);
+            }
+        }
+
+        // 일치하는 방이 없는 경우 Optional.empty() 반환
+        return Optional.empty();
+    }
+
+    // 새로운 채팅방 생성
+    public ChatRoom createRoom(List<String> participantIds, String currentUserId) {
+        // 참여자 목록 중 현재 사용자가 아닌 상대방을 찾기
+        String otherParticipantId = participantIds.stream()
+                .filter(id -> !id.equals(currentUserId))
+                .findFirst()
+                .orElse("Unknown User");
+
+        // 상대방의 이름을 가져오기 위해 userRepo 사용
+        String otherParticipantName = userRepo.findById(otherParticipantId)
+                .map(User::getName)
+                .orElse("Unknown User");
+
+        // 채팅방 이름을 상대방 이름으로 설정
+        String roomName = otherParticipantName;
+
+        // 새로운 ChatRoom 객체 생성
+        Set<String> participants = new HashSet<>(participantIds);
+        ChatRoom newRoom = new ChatRoom(roomName, participants);
+
+        // 새로운 채팅방 저장
+        return chatRoomRepository.save(newRoom);
+    }
+
+
 }
