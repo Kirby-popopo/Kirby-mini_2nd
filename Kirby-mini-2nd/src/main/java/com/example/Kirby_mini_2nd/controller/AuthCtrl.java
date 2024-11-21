@@ -55,7 +55,7 @@ public class AuthCtrl {
         String userId = params.get("userId");
         String userPw = params.get("userPw");
 
-        User user = userRepo.findByUserId(userId);
+        User user = userRepo.findById(userId).get();
 
         log.info("request userId: {}", params.get("userId"));
         log.info("login 실행");
