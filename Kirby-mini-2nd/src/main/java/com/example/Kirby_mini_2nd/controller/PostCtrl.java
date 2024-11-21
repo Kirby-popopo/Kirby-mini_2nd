@@ -1,8 +1,10 @@
 package com.example.Kirby_mini_2nd.controller;
 
 import com.example.Kirby_mini_2nd.model.ResponseModel;
+import com.example.Kirby_mini_2nd.repository.entity.Comments;
 import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.PostsRepo;
+import com.example.Kirby_mini_2nd.service.CommentSvc;
 import com.example.Kirby_mini_2nd.service.PostSvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
@@ -44,7 +46,7 @@ public class PostCtrl {
 
     @PostMapping("/mainPage")
     public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,String>requestData){
-        String userId =requestData.get("userId");
+            String userId =requestData.get("userId");
         int page = Integer.parseInt(requestData.get("page"));
         Page<Posts> main = postSvc.ShowMain(userId,page);
         return ResponseModel.MakeResponse(main,HttpStatus.OK);
@@ -69,14 +71,5 @@ public class PostCtrl {
         List<Posts> profileContents = postSvc.ShowProfileContents(userId);
         return ResponseModel.MakeResponse(profileContents,HttpStatus.OK);
     }
-    @PostMapping("/comment")
-    public ResponseEntity<ResponseModel> getComment(@RequestBody Map<String,Integer>requestData){
-        int post = requestData.get("post_pk");
-        String savedComment = commentSvc.saveComment(post);
-        return ResponseModel.MakeResponse(savedComment,HttpStatus.OK);
-    } // postPk
-    //게시물아이디 , 댓글 내용
 }
 //객체 만들어서 서비스에 보낼거임
-
-
