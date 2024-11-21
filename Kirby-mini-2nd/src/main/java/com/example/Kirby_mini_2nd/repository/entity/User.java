@@ -37,4 +37,10 @@ public class User {
 
     private String description; // ???
 
+    // OAuth2 가입을 위한 생성자
+    public User(String userId, String name) {
+        this.userId = userId;
+        this.name = name;
+    }
+
 }
