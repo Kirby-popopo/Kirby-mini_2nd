@@ -21,10 +21,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -85,12 +82,29 @@ public class ChatController {
             ));
         }
 
-        // 서비스 호출
-        int roomId = chatService.findOrCreateRoomByExactParticipants(participantIds, currentUserId);
+        // 기존 채팅방이 있는지 찾기
+        Optional<ChatRoom> existingRoom = chatService.findRoomByParticipants(participantIds, currentUserId);
 
-        // 결과 반환
-        return ResponseEntity.ok(Map.of("roomId", roomId));
+        Map<String, Object> response;
+        if (existingRoom.isPresent()) {
+            // 기존 채팅방이 있는 경우
+            response = Map.of(
+                    "roomId", existingRoom.get().getRoomId(),
+                    "roomName", existingRoom.get().getRoomName()
+            );
+        } else {
+            // 기존 채팅방이 없는 경우 새로운 채팅방 생성
+            ChatRoom newRoom = chatService.createRoom(participantIds, currentUserId);
+            response = Map.of(
+                    "roomId", newRoom.getRoomId(),
+                    "roomName", newRoom.getRoomName()
+            );
+        }
+
+        return ResponseEntity.ok(response);
     }
+
+
 
 
 

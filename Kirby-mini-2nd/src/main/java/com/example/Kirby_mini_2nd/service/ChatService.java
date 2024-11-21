@@ -263,4 +263,46 @@ public class ChatService {
     }
 
 
+    // 채팅방 찾기 - 특정 참가자 목록에 맞는 방이 있는지 검색
+    public Optional<ChatRoom> findRoomByParticipants(List<String> participantIds, String currentUserId) {
+        Set<String> allParticipants = new HashSet<>(participantIds);
+        allParticipants.add(currentUserId);
+
+        // 모든 방을 검색하여 참가자 목록이 일치하는 방을 찾음
+        List<ChatRoom> allRooms = chatRoomRepository.findAll(); // 가능한 최적화를 위해 더 나은 쿼리가 필요할 수 있음
+        for (ChatRoom room : allRooms) {
+            if (room.getParticipants().equals(allParticipants)) {
+                return Optional.of(room);
+            }
+        }
+
+        // 일치하는 방이 없는 경우 Optional.empty() 반환
+        return Optional.empty();
+    }
+
+    // 새로운 채팅방 생성
+    public ChatRoom createRoom(List<String> participantIds, String currentUserId) {
+        // 참여자 목록 중 현재 사용자가 아닌 상대방을 찾기
+        String otherParticipantId = participantIds.stream()
+                .filter(id -> !id.equals(currentUserId))
+                .findFirst()
+                .orElse("Unknown User");
+
+        // 상대방의 이름을 가져오기 위해 userRepo 사용
+        String otherParticipantName = userRepo.findById(otherParticipantId)
+                .map(User::getName)
+                .orElse("Unknown User");
+
+        // 채팅방 이름을 상대방 이름으로 설정
+        String roomName = otherParticipantName;
+
+        // 새로운 ChatRoom 객체 생성
+        Set<String> participants = new HashSet<>(participantIds);
+        ChatRoom newRoom = new ChatRoom(roomName, participants);
+
+        // 새로운 채팅방 저장
+        return chatRoomRepository.save(newRoom);
+    }
+
+
 }
