@@ -21,7 +21,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@CrossOrigin(origins = "*") //도메인 요청 전부 권한허용
+//@CrossOrigin(origins = "*") //도메인 요청 전부 권한허용
 @RequestMapping("/api")
 public class PostCtrl {
     PostSvc postSvc;

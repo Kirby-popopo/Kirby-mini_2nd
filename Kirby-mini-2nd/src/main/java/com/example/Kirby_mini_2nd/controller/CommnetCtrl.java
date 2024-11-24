@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*")
+//@CrossOrigin(origins = "*")
 @RequestMapping("/api")
 public class CommnetCtrl {
     CommentSvc commentSvc;
@@ -27,6 +27,7 @@ public class CommnetCtrl {
             String savedComment = commentSvc.SaveComment(content);
             return ResponseModel.MakeResponse(savedComment, HttpStatus.OK);
     }
+
     @GetMapping("/comment")
     // 이따가 수정해줄게
     public ResponseEntity<ResponseModel>ReadComment(@RequestBody Map<String,Integer> requestData){
@@ -34,6 +35,7 @@ public class CommnetCtrl {
         List<Comments> ListComments =commentSvc.ReadComment(Pk);
         return ResponseModel.MakeResponse(ListComments,HttpStatus.OK);
     }
+
     @PostMapping("/updateComment")
     public ResponseEntity<ResponseModel> UpdateComment(@RequestParam("CommentPk")int commentPk,
                                                        @RequestParam ("Content")String content){
