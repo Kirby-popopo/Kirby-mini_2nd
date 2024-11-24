@@ -1,6 +1,8 @@
 package com.example.Kirby_mini_2nd.repository.repo;
 
 import com.example.Kirby_mini_2nd.repository.entity.Likes;
+import com.example.Kirby_mini_2nd.repository.entity.Posts;
+import com.example.Kirby_mini_2nd.repository.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,8 +19,8 @@ public interface LikesRepo extends JpaRepository<Likes,Integer> {
 
     // :user_id 처럼 쓸 때 뭐가 중요하다고 했는지 한번 생각해보기.
     @Query("select l from Likes l where l.post_pk=:post_pk and l.user_id=:user_id")
-    Likes findByUniqueKey(@Param("post_pk")int postPk, @Param("user_id") String userId);
+    Likes findByUniqueKey(@Param("post_pk") Posts postPk, @Param("user_id") User userId);
 
-    //중복확인 쿼리
+
 
 }
