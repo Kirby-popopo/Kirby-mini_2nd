@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -18,24 +19,25 @@ public class LikeCtrl {
         this.likeSvc = likeSvc;
     }
 
-
     @PostMapping("/like")
-    public ResponseEntity<ResponseModel>likeClick(@RequestParam int PostPk,@RequestParam String userId){
-        String saveLikes= likeSvc.addLike(PostPk,userId);
+    public ResponseEntity<ResponseModel>likeClick(@RequestBody Map<String, String> requestData){
+        String userId = requestData.get("user_id");
+        int postPk = Integer.parseInt(requestData.get("post_pk"));
+        String saveLikes= likeSvc.addLike(postPk,userId);
         return ResponseModel.MakeResponse(saveLikes,HttpStatus.OK);
     }
 
     @GetMapping("/like/{postPk}")
-    public ResponseEntity<ResponseModel>readLike(@PathVariable int PostPk){
-        List<Likes> readLikes = likeSvc.searchPostLike(PostPk);
+    public ResponseEntity<ResponseModel>readLike(@PathVariable int postPk){
+        List<Likes> readLikes = likeSvc.searchPostLike(postPk);
         return ResponseModel.MakeResponse(readLikes, HttpStatus.OK);
     }
 
     // 유저아이디와 게시글 pk를 주면
     // 해당 유저 가 해당 게시글을 좋아요 눌렀는지 안눌렀는지 판단해주는 컨트롤러.
-    @PostMapping("checkLike")
-    public ResponseEntity<ResponseModel>cheking(@RequestParam int PostPk,@RequestParam String userId){
-        Boolean Checked = likeSvc.checkLike(PostPk,userId);
+    @GetMapping("checkLike/{postPk}/{userId}")
+    public ResponseEntity<ResponseModel>cheking(@PathVariable int postPk,@PathVariable String userId){
+        Boolean Checked = likeSvc.checkLike(postPk,userId);
         return ResponseModel.MakeResponse(Checked,HttpStatus.OK);
     }
 }

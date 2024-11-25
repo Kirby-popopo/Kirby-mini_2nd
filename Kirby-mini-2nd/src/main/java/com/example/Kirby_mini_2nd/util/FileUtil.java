@@ -8,10 +8,10 @@ import java.util.UUID;
 
 public class FileUtil {
    // private static final String UPLOAD_DIR = "C:/education/Kirby-mini_2nd/Kirby-mini-2nd/src/main/resources/static/";
-    private static final String UPLOAD_DIR = "C:/MiniProject/Kirby-mini_2nd/Kirby-mini-2nd/src/main/resources/static/images/";
-    private static final String IMAGE_PATH = "http://localhost:8090/images/";
-    private static final String VIDEO_PATH = "http://localhost:8090/media/";
-    private static final String DEFAULT_IMAGE = "http://localhost:8090/images/default.jpg";
+    private static final String UPLOAD_DIR = "C:/MiniProject/Kirby-mini_2nd/Kirby-mini-2nd/src/main/resources/static/";
+    private static final String IMAGE_PATH = "http://192.168.5.58:8090/images/";
+    private static final String VIDEO_PATH = "http://192.168.5.58:8090/media/";
+    private static final String DEFAULT_IMAGE = "http://192.168.5.58:8090/images/default.jpg";
 
     // 파일(이미지) 저장  메서드
     //public static String UpdateImage(MultipartFile file) {
@@ -24,7 +24,7 @@ public class FileUtil {
 
         try {
             String newFileName = UUID.randomUUID().toString() + file.getOriginalFilename();
-            File destination = new File(UPLOAD_DIR + newFileName);
+            File destination = new File(UPLOAD_DIR + "/images/" + newFileName);
             file.transferTo(destination);
 
             // 파일 경로와 이름

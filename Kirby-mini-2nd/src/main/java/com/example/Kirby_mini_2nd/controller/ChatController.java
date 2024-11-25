@@ -109,13 +109,6 @@ public class ChatController {
 
 
 
-    // 채팅방 생성
-//    @PostMapping("/createRoom")
-//    public ChatRoom createRoom(@RequestBody ChatRoom chatRoom) {
-//        log.info("채팅방 생성 확인: {}", chatRoom);
-//        return chatService.createChatRoom(chatRoom);
-//    }
-
     // 메시지 전송 (Redis에 퍼블리시)
     @MessageMapping("/chat/{roomId}")
     public void sendMessage(@DestinationVariable String roomId, ChatMessage message) {

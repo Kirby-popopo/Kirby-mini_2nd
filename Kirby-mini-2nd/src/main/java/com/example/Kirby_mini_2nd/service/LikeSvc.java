@@ -14,17 +14,23 @@ import java.util.List;
 import static java.lang.Integer.parseInt;
 
 @Service
-
 public class LikeSvc {
+    LikesRepo likesRepo;
+    UserRepo userRepo;
+    PostsRepo postsRepo;
+
     @Autowired
-    private LikesRepo likesRepo;
-    private UserRepo userRepo;
-    private PostsRepo postsRepo;
+    public LikeSvc(LikesRepo likesRepo, UserRepo userRepo, PostsRepo postsRepo){
+        this.likesRepo = likesRepo;
+        this.userRepo = userRepo;
+        this.postsRepo = postsRepo;
+    }
 
     //postPk로 좋아요 보여줌
     public List<Likes> searchPostLike(int postPk) {
         try {
-            List<Likes> allLikes = likesRepo.findByPostPk(postPk);
+            Posts findPost = postsRepo.findById(postPk).get();
+            List<Likes> allLikes = likesRepo.findByPostPk(findPost);
             return allLikes;
         } catch (Exception e) {
             return null;

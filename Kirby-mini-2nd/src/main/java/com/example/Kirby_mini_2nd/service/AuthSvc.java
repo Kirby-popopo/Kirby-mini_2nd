@@ -33,7 +33,7 @@ public class AuthSvc {
                 .nickname(user.getNickname())
                 .phoneNumber(user.getPhoneNumber())
                 .lastLogin(user.getLastLogin())
-                .profileImage("http://localhost:8090/images/default.jpg")
+                .profileImage("http://192.168.5.58:8090/images/default.jpg")
                 .description(user.getDescription())
                 .build();
 

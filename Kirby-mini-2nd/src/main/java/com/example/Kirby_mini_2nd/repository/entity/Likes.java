@@ -26,6 +26,8 @@ public class Likes {
     private User user_id;
     // 종민이 형이 알려줬던거 join쿼리안쓰고 관계 데이터 가져오도록 설정하기
 
+    public Likes(){}
+
     public Likes(Posts pk,User id){
         this.post_pk=pk;
         this.user_id=id;

@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface PostsRepo extends JpaRepository <Posts, Integer> { //post 의 모든 컬럼이니까 Posts타입에 p select
     @Query("SELECT p FROM Posts p WHERE p.user_id = :userId")
-    public Page<Posts> findByUserId(@Param("userId")String id,Pageable page);
+    public List<Posts> findByUserId(@Param("userId")String id);
 
     @Query("SELECT p FROM Posts p WHERE p.user_id = :userId")
     public List<Posts> findContentsByUserId(@Param("userId")String id);

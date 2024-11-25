@@ -2,6 +2,7 @@ package com.example.Kirby_mini_2nd.controller;
 
 import com.example.Kirby_mini_2nd.model.ResponseModel;
 import com.example.Kirby_mini_2nd.repository.entity.Comments;
+import com.example.Kirby_mini_2nd.repository.entity.Likes;
 import com.example.Kirby_mini_2nd.repository.entity.Posts;
 import com.example.Kirby_mini_2nd.repository.repo.PostsRepo;
 import com.example.Kirby_mini_2nd.service.CommentSvc;
@@ -44,11 +45,17 @@ public class PostCtrl {
         }
     }
 
-    @PostMapping("/mainPage")
+    @GetMapping("/mainPage/{page}")
+    public ResponseEntity<ResponseModel> ShowMain(@PathVariable int page){
+        Page<Posts> main = postSvc.ShowMain(page);
+        return ResponseModel.MakeResponse(main,HttpStatus.OK);
+    }
+
+    @PostMapping("/userPost")
     public ResponseEntity<ResponseModel> ShowMain(@RequestBody Map<String,String>requestData){
             String userId =requestData.get("userId");
         int page = Integer.parseInt(requestData.get("page"));
-        Page<Posts> main = postSvc.ShowMain(userId,page);
+        List<Posts> main = postSvc.ShowUserPost(userId,page);
         return ResponseModel.MakeResponse(main,HttpStatus.OK);
     }
 
@@ -58,6 +65,7 @@ public class PostCtrl {
         String updated = postSvc.UpdatePost(post);
         return ResponseModel.MakeResponse(updated,HttpStatus.OK);
     }
+
     @PostMapping("/postDelete")
     public ResponseEntity<ResponseModel> deletePost(@RequestBody Map<String,Integer>requestData){
         int post = requestData.get("post_pk");

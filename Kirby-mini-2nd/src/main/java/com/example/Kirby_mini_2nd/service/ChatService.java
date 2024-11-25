@@ -282,23 +282,22 @@ public class ChatService {
 
     // 새로운 채팅방 생성
     public ChatRoom createRoom(List<String> participantIds, String currentUserId) {
-        // 참여자 목록 중 현재 사용자가 아닌 상대방을 찾기
-        String otherParticipantId = participantIds.stream()
-                .filter(id -> !id.equals(currentUserId))
-                .findFirst()
-                .orElse("Unknown User");
+        // 참여자 목록 중 현재 사용자를 제외한 사용자들의 이름 가져오기
+        List<String> otherParticipantNames = participantIds.stream()
+                .filter(id -> !id.equals(currentUserId)) // 현재 사용자를 제외
+                .map(id -> userRepo.findById(id) // 각 id로 이름 조회
+                        .map(User::getName)
+                        .orElse("Unknown User"))
+                .collect(Collectors.toList());
 
-        // 상대방의 이름을 가져오기 위해 userRepo 사용
-        String otherParticipantName = userRepo.findById(otherParticipantId)
-                .map(User::getName)
-                .orElse("Unknown User");
-
-        // 채팅방 이름을 상대방 이름으로 설정
-        String roomName = otherParticipantName;
+        // 채팅방 이름을 나를 제외한 모든 사용자 이름으로 설정
+        String roomName = String.join(", ", otherParticipantNames);
 
         // 새로운 ChatRoom 객체 생성
         Set<String> participants = new HashSet<>(participantIds);
         ChatRoom newRoom = new ChatRoom(roomName, participants);
+
+        log.info("채팅방 이름 {}", newRoom.getRoomName());
 
         // 새로운 채팅방 저장
         return chatRoomRepository.save(newRoom);

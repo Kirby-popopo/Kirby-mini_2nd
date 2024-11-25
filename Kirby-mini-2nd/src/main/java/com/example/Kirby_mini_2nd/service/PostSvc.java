@@ -48,10 +48,10 @@ public class PostSvc {
             return "게시물 저장 실패"+e.getMessage(); // 에러메세지 console에서 보인다
         }
     }
-    public Page<Posts> ShowMain(String userId,int pageNumber){
+    public Page<Posts> ShowMain(int pageNumber){
         try {
-            PageRequest pageRequest = PageRequest.of(pageNumber,5,Sort.by("post_time"));
-            Page<Posts> userPost = postsRepo.findByUserId(userId,pageRequest);
+            PageRequest pageRequest = PageRequest.of(pageNumber,5,Sort.by(Sort.Direction.DESC, "postTime"));
+            Page<Posts> userPost = postsRepo.findAll(pageRequest);
             if(userPost.stream().count() != 0){ //count 개수 -> 페이지 안에 들어있는 post개수
                 return userPost;
             }
@@ -60,6 +60,19 @@ public class PostSvc {
         }
         return null;
     }
+
+    public List<Posts> ShowUserPost(String userId, int pageNumber){
+        try {
+            List<Posts> userPost = postsRepo.findByUserId(userId);
+            if(userPost.stream().count() != 0){
+                return userPost;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
     public String UpdatePost(Posts posts){ //repo에서 찾아서 수정하고 저장
         try {
             Posts updatedPost = postsRepo.findById(posts.getPost_pk()).get();
