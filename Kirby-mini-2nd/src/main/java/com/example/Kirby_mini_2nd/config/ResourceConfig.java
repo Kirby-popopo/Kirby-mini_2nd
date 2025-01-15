@@ -12,6 +12,10 @@ public class ResourceConfig implements WebMvcConfigurer {
         // 이미지 업로드 이후 서버에 요청시 못 찾던 문제 해결
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:src/main/resources/static/");
+
+        registry.addResourceHandler("/images/**")
+                .addResourceLocations("classpath:/static/images/")
+                .setCachePeriod(60 * 60 * 24 * 365);
     }
 
 }
